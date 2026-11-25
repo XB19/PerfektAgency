@@ -124,9 +124,9 @@ h1, h2, h3, h4 { margin: 0; line-height: 1.12; letter-spacing: -.02em; font-weig
 .btn-gold:hover { background: #d4ad35; }
 .btn-ghost { background: transparent; color: var(--ink); border-color: var(--line-strong); }
 .btn-ghost:hover { border-color: var(--ink); box-shadow: none; }
-.bg-ink .btn-ghost { color: #f5f3ee; border-color: #3a3a3c; }
-.bg-ink .btn-ghost:hover { border-color: #f5f3ee; }
-.bg-ink .btn:not(.btn-gold):not(.btn-ghost) { background: #f5f3ee; color: #0b0b0c; }
+.bg-ink .btn-ghost, .cta-band .btn-ghost, .cd-hero .btn-ghost, .auth-side .btn-ghost { color: #f5f3ee; border-color: #3a3a3c; }
+.bg-ink .btn-ghost:hover, .cta-band .btn-ghost:hover, .cd-hero .btn-ghost:hover, .auth-side .btn-ghost:hover { border-color: #f5f3ee; color: #f5f3ee; }
+.bg-ink .btn:not(.btn-gold):not(.btn-ghost):not(.btn-danger), .cta-band .btn:not(.btn-gold):not(.btn-ghost):not(.btn-danger), .cd-hero .btn:not(.btn-gold):not(.btn-ghost):not(.btn-danger), .auth-side .btn:not(.btn-gold):not(.btn-ghost):not(.btn-danger) { background: #f5f3ee; color: #0b0b0c; }
 .btn-sm { height: 40px; padding: 0 18px; font-size: .86rem; }
 .btn-xs { height: 32px; padding: 0 12px; font-size: .8rem; }
 .btn-block { width: 100%; }
