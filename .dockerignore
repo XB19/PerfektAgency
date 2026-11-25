@@ -1,0 +1,12 @@
+**/node_modules
+**/dist
+.git
+.env
+**/.env
+server/uploads/*
+server/backups
+images
+*.pdf
+*.jpg
+docs
+scripts

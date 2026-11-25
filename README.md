@@ -67,7 +67,29 @@ inactifs (7 jours) et des paiements en attente.
 **SEO** — URLs propres, balises title/description/Open Graph/canonical par page, Schema.org (Organization, Course,
 BlogPosting), `sitemap.xml` et `robots.txt` dynamiques, code découpé par page pour un chargement rapide.
 
-## Production
+## Déploiement avec Docker (recommandé)
+
+Sur un serveur (VPS Ubuntu par exemple) avec Docker installé :
+
+```bash
+git clone https://github.com/XB19/PerfektAgency.git
+cd PerfektAgency
+cp .env.docker.example .env      # renseigner PGPASSWORD, JWT_SECRET, CLIENT_URL, DOMAIN
+docker compose up -d --build     # site + API sur http://IP_DU_SERVEUR:4000
+```
+
+Avec un nom de domaine pointant vers le serveur, HTTPS automatique (Let's Encrypt via Caddy) :
+
+```bash
+docker compose --profile https up -d --build   # https://votre-domaine
+```
+
+- La base PostgreSQL, les fichiers téléversés et les sauvegardes sont conservés dans des volumes Docker.
+- Au premier démarrage, le schéma et les contenus initiaux sont créés automatiquement.
+- Mise à jour : `git pull && docker compose up -d --build`
+- Journaux : `docker compose logs -f app`
+
+## Production sans Docker
 
 ```bash
 npm run build                    # génère client/dist

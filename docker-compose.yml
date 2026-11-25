@@ -1,0 +1,67 @@
+# PERFEKT AGENCY — déploiement Docker
+#   1. cp .env.docker.example .env   (puis compléter les valeurs)
+#   2. docker compose up -d --build                 → http://IP_DU_SERVEUR:4000
+#   3. avec HTTPS automatique (domaine requis) :
+#      docker compose --profile https up -d --build → https://votre-domaine
+services:
+  db:
+    image: postgres:17-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${PGUSER:-perfekt}
+      POSTGRES_PASSWORD: ${PGPASSWORD:?Définissez PGPASSWORD dans .env}
+      POSTGRES_DB: ${PGDATABASE:-perfekt_academy}
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${PGUSER:-perfekt} -d ${PGDATABASE:-perfekt_academy}"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+
+  app:
+    build: .
+    image: perfekt-agency:latest
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      PGHOST: db
+      PGPORT: 5432
+      PGUSER: ${PGUSER:-perfekt}
+      PGPASSWORD: ${PGPASSWORD}
+      PGDATABASE: ${PGDATABASE:-perfekt_academy}
+      JWT_SECRET: ${JWT_SECRET:?Définissez JWT_SECRET dans .env}
+      CLIENT_URL: ${CLIENT_URL:-http://localhost:4000}
+      MAX_DEVICES: ${MAX_DEVICES:-2}
+      PAYMENT_MODE: ${PAYMENT_MODE:-simulation}
+      PAYMENT_WEBHOOK_SECRET: ${PAYMENT_WEBHOOK_SECRET:-}
+    ports:
+      - "${APP_PORT:-4000}:4000"
+    volumes:
+      - uploads:/app/server/uploads
+      - backups:/app/server/backups
+
+  # Reverse proxy HTTPS (certificat Let's Encrypt automatique) — activé avec --profile https
+  caddy:
+    image: caddy:2-alpine
+    profiles: ["https"]
+    restart: unless-stopped
+    depends_on: [app]
+    environment:
+      DOMAIN: ${DOMAIN:-localhost}
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
+
+volumes:
+  pgdata:
+  uploads:
+  backups:
+  caddy_data:
+  caddy_config:
