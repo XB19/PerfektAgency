@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { Link, NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom';
 import {
   ChevronDown, Menu, X, Sun, Moon, LayoutDashboard, LogOut, BookOpen, Award, Bell, Settings, MessageCircle, ArrowRight, Shield,
-  Search, MapPin, Phone, Mail,
+  Search, MapPin, Phone, Mail, ArrowUp,
 } from 'lucide-react';
 import { Logo } from './ui';
 import { useAuth, useSite, useTheme, useToast } from '../lib/context';
@@ -215,7 +215,44 @@ function FloatingChat() {
   );
 }
 
+// Bouton « retour en haut » : visible après défilement, avec anneau de progression de lecture
+function ScrollTop({ raised }) {
+  const [state, setState] = useState({ show: false, progress: 0 });
+  useEffect(() => {
+    let frame = 0;
+    const update = () => {
+      cancelAnimationFrame(frame);
+      frame = requestAnimationFrame(() => {
+        const max = document.documentElement.scrollHeight - window.innerHeight;
+        setState({ show: window.scrollY > 500, progress: max > 0 ? Math.min(1, window.scrollY / max) : 0 });
+      });
+    };
+    update();
+    window.addEventListener('scroll', update, { passive: true });
+    window.addEventListener('resize', update);
+    return () => { cancelAnimationFrame(frame); window.removeEventListener('scroll', update); window.removeEventListener('resize', update); };
+  }, []);
+  const C = 2 * Math.PI * 22;
+  return (
+    <button
+      type="button"
+      className={`scroll-top ${state.show ? 'visible' : ''} ${raised ? 'raised' : ''}`}
+      onClick={() => window.scrollTo({ top: 0, behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth' })}
+      aria-label="Revenir en haut de la page"
+      title="Revenir en haut"
+      tabIndex={state.show ? 0 : -1}
+    >
+      <svg className="ring" viewBox="0 0 48 48" aria-hidden="true">
+        <circle cx="24" cy="24" r="22" />
+        <circle cx="24" cy="24" r="22" className="bar" style={{ strokeDasharray: C, strokeDashoffset: C * (1 - state.progress) }} />
+      </svg>
+      <ArrowUp />
+    </button>
+  );
+}
+
 export default function Layout({ bare }) {
+  const { contact = {} } = useSite();
   const { pathname, hash } = useLocation();
   useEffect(() => {
     if (hash) {
@@ -228,6 +265,7 @@ export default function Layout({ bare }) {
       <main id="main"><Outlet /></main>
       {!bare && <Footer />}
       {!bare && <FloatingChat />}
+      <ScrollTop raised={!bare && !!contact.whatsapp} />
     </>
   );
 }
